@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 电子音乐
-date: 2015-10-14 
+date: 2016-10-14 
 tags: 电子音乐   
 ---
 <div align="center">
