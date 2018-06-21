@@ -44,7 +44,7 @@ title: About Me
 
 Music.
 <div align="center">
-  <img src="/images/17.jpg" height="350" width="1000">
+  <img src="/images/15.jpg" height="350" width="1000">
  </div>
 
 <p>
