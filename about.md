@@ -5,7 +5,7 @@ title: About Me
 
 一个音乐爱好者，喜欢听各种类型的音乐。给你们带来音乐方面的了解哦~~~
 <div align="center">
-  <img src="/images/18.jpg" height="350" width="950">
+  <img src="/images/18.jpg" height="350" width="1000">
  </div>
  
  
@@ -28,13 +28,13 @@ title: About Me
 音乐歌颂人们的生活，引导人们走向光明的未来。 ——普罗科菲耶夫
   
   <div align="center">
-  <img src="/images/16.jpg" height="350" width="950">
+  <img src="/images/16.jpg" height="350" width="1000">
  </div>
 <p>
 了解音乐，了解我们的精神伴侣。
 享受音乐，享受我们的精神粮食。
   <div align="center">
-  <img src="/images/19.jpg" height="350" width="950">
+  <img src="/images/19.jpg" height="350" width="1000">
  </div>
 <p>
 
@@ -44,7 +44,7 @@ title: About Me
 
 Music.
 <div align="center">
-  <img src="/images/17.jpg" height="350" width="950">
+  <img src="/images/17.jpg" height="350" width="1000">
  </div>
 
 <p>
