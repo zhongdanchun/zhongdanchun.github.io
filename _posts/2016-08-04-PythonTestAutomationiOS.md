@@ -1,135 +1,52 @@
 ---
 layout: post
-title: "Python自动化测试iOS项目"
-date: 2016-08-04 
-tags: python  
+title: 酷狗音乐
+date: 2018-06-20 11:15:06 
+tag: 酷狗音乐
 ---
 
-作为一个开发人员，为了保证自己的代码的健壮，写单元测试是必不可少的环节，然而最痛快的是每天去手动跑一遍所有的case。那么什么能帮我们解决这些繁琐的操作呢，大家应该会想到自动化测试脚本了，是的，我们可以借助脚本来完成全自动化测试，下面是我列的每天脚本自动执行流程：       
 
- >* 1、`pull` git仓库里面的最新代码到本地。    
- >* 2、然后打包成`App`。   
- >* 3、安装到模拟器上。    
- >* 4、运行App，执行单元测试，生成测试数据并保存到本地。    
- >* 5、脚本读取测试数据，邮件发送给相关人员。    
-
-
-当这些全自动化后，可以大大减少开发人员的维护成本，即使每次项目里面有新增模块后，增加测试case就行了，下面会介绍自动测试这5步具体怎么去执行，整个脚本是使用Python写的，代码很少功能也很简单，但这已经可以帮我们完成基本的自动化测试了，这就是脚本的强大之处，选择Pyhton纯属个人喜好，最近也在学习Python，当然了最终使用什么语言看你自己。   
-
-### python执行shell命令完成测试       
-
-首先确认本机上安装了`git` 和 `python` 。    
-脚本判断本地是否存在项目，不存在则使用命令 `git clone ...` ，存在则使用命令 `git pull ...` 。       
-这些在Linux的命令都可以使用脚本来完成的，python的 `os.popen()` 方法 就是可以在Linux上执行shell命令。     
-**例如：**  把下面这段代码添加到一个 test.py 的文件里，然后在终端上执行 `python test.py` 命令你就会看到，你的当前目录下正在下载我的博客了。
-
-```     
-import os
-
-os.popen('git clone https://github.com/leopardpan/leopardpan.github.io.git')   
-
-```       
-git pull 。。。 更新代码也是一样的。
-
-接下来的打包、安装、运行都是使用python执行shell命令      
-
-**把iOS项目打包成App，下面的 `Demo` 是项目的名字**              
-
->* os.popen('xcodebuild -project Demo.xcodeproj -target Demo -configuration Debug -sdk iphonesimulator')	 
-
-这行脚本运行完成后，你就会发现同会生成一个 `build` 的文件夹。  
-Debug参数表示现在是Debug模式，如果Xcode里面改成Release了，这里需要改成Release。  
-xcodebuild 命令是 Xcode Command Line Tools 的一部分。通过调用这个命令，可以完成 iOS 工程的编译，打包和签名过程。可以使用 xcodebuild --help 来看看具体有哪些功能。 
-
-**打开iOS模拟器，这里运行的是`iPhone 6 Plus` 你也可以换成其它型号的模拟器**      
-
->*  os.popen('xcrun instruments -w "iPhone 6 Plus"')	
-
-**把刚才打包生成的App安装到模拟器上**      
-在安装之前要先卸载App,不然你运行的永远是最初安装的那个，后来安装的不会覆盖之前的，卸载App
-
->* os.popen('xcrun simctl uninstall booted com.test.Demo')
-
-booted 后面接的是 `Bundle Identifier`，我的是 com.test.Demo，然后再安装App     
-
->* os.popen('xcrun simctl install booted build/Debug-iphonesimulator/Demo.app ')	
-
-booted 后面接的是.app的路径，我打包的时候的是Debug，所以这个的文件夹名称是Debug-iphonesimulator。
-
-**在模拟器里运行App**      
-
->* os.popen('xcrun simctl launch booted com.test.Demo')
-
-booted 后面接的是 `Bundle Identifier`，我的是 com.test.Demo。
-
-到目前为止，你就会发现你的项目已经运行起来了，你可以在项目是Debug模式下一启动就执行单元测试，然后把对应的测试数据保存到本地为data.json。然后在使用python脚本读取测试文件的数据，最终使用邮件发送给相关人员，pyhton读取数据很简单，一行代码就行
-
->* data = open('data.json').read() 
-
-data里面就是json字符串，为了脚本操作简单，我在存储的时候直接把json格式的转成了字符串类型。
-
-### python发送邮件     
-
-我使用的是SMTP进行邮件发送的，SMTP是发送邮件的协议，Python内置对SMTP的支持，可以发送纯文本邮件、HTML邮件以及带附件的邮件。     
-
-Python对SMTP支持有smtplib和email两个模块，email负责构造邮件，smtplib负责发送邮件，具体代码如下： 
-
-
-	from email import encoders
-	from email.header import Header
-	from email.mime.text import MIMEText
-	from email.utils import parseaddr, formataddr
-	import smtplib
-
-	def format_addr(self,s):
-	    name, addr = parseaddr(s)
-	    return formataddr(( \
-	        Header(name, 'utf-8').encode(), \
-	        addr.encode('utf-8') if isinstance(addr, unicode) else addr))
-
-	def send_mail(self, mail, message, title):
-		from_addr = 'leopardpan@163.com'
-		password = ''
-		to_addr = mail
-		smtp_server = 'smtp.163.com'
-
-		msg = MIMEText(message, 'plain', 'utf-8')
-		msg['From'] = self.format_addr(u'自动化测试邮件 <%s>' % from_addr)
-		msg['To'] = self.format_addr(u'管理员 <%s>' % to_addr)
-		msg['Subject'] = Header(title, 'utf-8').encode()
-
-		server = smtplib.SMTP(smtp_server, 25)
-		server.set_debuglevel(1)
-		server.login(from_addr, password)
-		server.sendmail(from_addr, [to_addr], msg.as_string())
-		server.quit()
-
-	send_mail('leopardpan@icloud.com','正文','标题')
-
-
-from_addr是发送方的邮箱地址，password是开通SMTP时输入的密码     
-smtp_server是smtp的服务，如果你的from_addr是gamil.com，那么就要写成smtp_server = 'smtp.gmail.com' 了。
-
-方法 send_mail(self, mail, message, title): 有四个参数，第一个不用传，第二个参数是收信人的邮箱，第三个是邮件的正文，第四个是邮件的标题，方法调用格式： `send_mail('leopardpan@icloud.com','正文','标题')`
-
-注意：发送方的邮箱必须要开通SMTP功能才行，否则会报错
-
->* SMTPSenderRefused: (550, 'User has no permission', 'leopardpan@163.com')
-
-163的SMTP开通，需要你登录网易邮箱，然后点击顶部的设置就会出现`POP3/SMTP/IMAP`，点击之后，勾选选择开启，这个时候需要你输入密码，记住这个密码就是上面代码中的`password`，如果你都完成的话，你把上面的代码拷贝出现，把邮箱修改成你自己的，使用 pyhton 运行一下吧。
-
-
-上面的几个流程结合起来就可以实现一个简单的自动化测试了，如果你有什么建议和意见欢迎讨论。
-
-
-参考链接：
-[SMTP发送邮件](http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001386832745198026a685614e7462fb57dbf733cc9f3ad000)     
-
-<br>
-
-转载请注明：[潘柏信的博客](http://baixin) » [点击阅读原文](http://baixin.io/2016/08/PythonTestAutomationiOS/) 
-
+### 酷狗音乐
+```
+酷狗是中国领先的数字音乐交互服务提供商，互联网技术创新的领军企业，致力于为互联网用户和数字音乐产业发展提供最佳的解决方案。[1]公司的使命是成为亚太地区最大的数字音乐销售推广企业。
+自公司创建以来，一直在数字音乐发展上大胆尝试，先后与几十家唱片公司、版权管理机构合作探索发展，积累了数万首数字音乐版权，并在推动广范围的跨行业、跨平台合作上做出努力，在艰巨的全球音乐数字化进程中作出自身的贡献。酷狗(KuGou)拥有超过数亿的共享文件资料，深受全球用户的喜爱，拥有上千万使用用户，给予用户人性化功能，实行多源下载，提升平时的下载速度，经测试，速度由自身网速决定，更快更高效率的下载搜索的歌曲。
+```
+### 酷狗音乐大事记表
+```
+2008年12月 酷狗音乐软件获中国软件协会评为“优秀软件奖”； 
+2008年12月 酷狗手机客户端软件被评为“手机客户端软件中国50强”；
+2009年06月 酷狗入选中国世界纪录协会中国最大的音乐软件。
+2010年01月 酷狗音乐获天极2009年度软件评选“年度音乐播放产品推荐大奖”；
+2010年04月 酷狗获广电颁发信息网络传播视听节目许可证；
+2010年05月 酷狗音乐获得了由 中华人民共和国文化部颁发的《网络文化经营许可证》； 
+2010年07月 酷狗音乐获得中国互联网十大“最具价值产品服务大奖”； 　
+2010年08月 手机酷狗获得IMEA2010移动娱乐大奖“手机娱乐十大最佳应用程序奖”；
+2010年09月 手机酷狗获得2010年中国“最佳手机应用大奖”； 
+2010年10月 手机酷狗荣获IMEA2010海峡两岸移动娱乐大赛“十大手机软件奖”。
+2017年8月3日，中国互联网协会、工业和信息化部信息中心在京联合发布2017年“中国互联网企业100强”榜单，广州酷狗计算机科技有限公司位列第83。
+2018年1月7日，第三届中国泛娱乐年度盛典暨首届金鲛奖颁奖典礼在北京举行，芒果娱乐&酷狗音乐·酷狗校际音超联赛获得2017年度最佳跨界营销奖。
+```
+<div align="center">
+  <img src="/images/6.jpg" height="350" width="850">
+ </div>
  
+### 酷狗音乐合作伙伴
+```
+2017年7月24日，腾讯音乐娱乐集团在北京宣布推出音乐人计划，将集合QQ音乐、酷狗音乐、酷我音乐、全民K歌、酷狗直播、5Sing六大平台，打造原创音乐人的全产业链服务。
+2017年12月18日，斗鱼直播与酷狗音乐联合在上海举行发布会，在会上双方宣布达成合作，共同打造10位主播歌手，三年将会推出百首歌曲。
+```
+### 酷狗科技
+```
+酷狗科技（KuGooNetworks）是中国领先的数字音乐交互服务提供商，互联网技术创新的领军企业，致力于为互联网用户和数字音乐产业发展提供最佳的解决方案，公司的使命是成为亚太地区最大的数字音乐销售推广企业。自公司创建以来，一直在数字音乐发展上大胆尝试，先后与几十家唱片公司、版权管理机构合作探索发展，积累了数万首数字音乐版权，并在推动广范围的跨行业、跨平台合作上做出努力，在艰巨的全球音乐数字化进程中作出自身的贡献。在技术推动领域，公司创造了多项国际领先的技术，先进的共享交互网络、数据传输方案、高效的分布式无集中化搜索、全球唯一歌曲识别技术等更是填补了中国国内技术空白，引领新一代互联网络构架技术的发展。
+KuGou提供的优质产品和服务已经成为华人年轻用户最受欢迎的互联网产品之一，提供的服务包括有DIY的个人数字专集、在线播放器、Web2.0概念下的狗窝等，酷狗音乐播放器酷狗音乐安卓版（手机酷狗）是最受欢迎的音乐播放器，同样具备强大的音乐搜索和高速下载功能、全球最全音乐曲库，最专业的音频解码核心技术，完美实现各种音频格式的高保真播放。酷狗用户能够在KuGoo里享受到一体化的娱乐产品，深受数千万用户的喜爱。酷狗科技非常重视与业界的合作发展，与中国国内外多家知名品牌企业、机构如雅虎、新浪、Ebay、Benq、滚石、R2G等建立了良好的合作关系。
+```
+### 基本应用
+```
+颜色、界面随意换：酷狗支持换肤和换色功能，除了默认的皮肤外还提供了3种皮肤风格可供换用，对于同一皮肤，酷狗还支持对其进行丰富的换色功能。
 
+“快捷键”轻松控制：在听音乐时，一些快捷键能够帮助轻松控制歌曲及声音的大小，酷狗提供了约20余项功能的快捷键，同时还提供了全局热键的功能（全局热键可以让在做任何事的同时，都能够对酷狗进行控制）。如“播放/暂停”的快捷键是“F5”，全局热键是“Ctrl+Alt+F5”等等。点击“菜单设置”—“选项”—“快捷键”，即可进行设置。
 
+播放列表：自动切换让自己的音乐播放列表自然有序的播放下去，直到最后一首歌一边工作一边享受着音乐的节奏，确实是一件令人愉快的事情。酷狗音乐可以让轻松实现：点击“播放模式”—勾选“自动切换列表”。
 
+魅力EQ，音乐超动听：无EQ不音乐，如果拥有强大的EQ功能，就可能根据自己喜爱的音乐风格，播放出与众不同的音质来，酷狗音乐的EQ功能能轻松满足的需求。如果默认的EQ功能不能够满足的需求，还可以通过添加音频插件来满足个性化的需求。
+```
