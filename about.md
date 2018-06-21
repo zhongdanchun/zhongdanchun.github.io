@@ -5,7 +5,7 @@ title: About Me
 
 一个音乐爱好者，喜欢听各种类型的音乐。给你们带来音乐方面的了解哦~~~
 <div align="center">
-  <img src="/images/18.jpg" height="350" width="1000">
+  <img src="/images/15.jpg" height="350" width="1000">
  </div>
  
  
@@ -44,7 +44,7 @@ title: About Me
 
 Music.
 <div align="center">
-  <img src="/images/15.jpg" height="350" width="1000">
+  <img src="/images/18.jpg" height="350" width="1000">
  </div>
 
 <p>
