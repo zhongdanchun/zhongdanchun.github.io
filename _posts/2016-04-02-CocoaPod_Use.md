@@ -5,13 +5,13 @@ date: 2015-07-15
 tags: 音乐  
 ---
 <div align="left">
-  <img src="/images/15.jpg" height="300" width="250">
+  <img src="/images/15.jpg" height="300" width="450">
  </div>
  <div align="center">
-  <img src="/images/13.jpg" height="300" width="250">
+  <img src="/images/13.jpg" height="300" width="450">
  </div>
 <div align="right">
-  <img src="/images/14.jpg" height="300" width="250">
+  <img src="/images/14.jpg" height="300" width="450">
  </div>
  
 ### 基本内容
